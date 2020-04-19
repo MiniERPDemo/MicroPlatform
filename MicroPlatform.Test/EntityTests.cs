@@ -59,6 +59,20 @@ namespace MicroPlatform.Test
         }
 
 
+        [Test]
+        public void TestIncorrectField()
+        {
+            var entityFactory = new EntityFactory();
+            var errandType = entityFactory.CreateType("Errand");
+
+            var errandItem1 = entityFactory.CreateItem(errandType);
+
+            Assert.Throws<ArgumentException>(() =>
+            {
+                errandItem1.GetValue("name");
+            });
+        }
+
 
     }
 
