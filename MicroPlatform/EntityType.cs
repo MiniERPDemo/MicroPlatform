@@ -133,7 +133,7 @@ namespace MicroPlatform
                 case "int":
                     return "0";
                 case "string":
-                    return "1";
+                    return "";
             }
             return null;
         }

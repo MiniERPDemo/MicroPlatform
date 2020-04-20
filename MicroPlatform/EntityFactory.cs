@@ -6,7 +6,12 @@ using System.Text;
 
 namespace MicroPlatform
 {
-    public class EntityFactory : IEntityProvider
+    public interface IEntityChanged
+    {
+        void OnEntityValueChanged(EntityChangedEvent e);
+    }
+
+    public class EntityFactory : IEntityProvider, IEntityChanged
     {
         private readonly Dictionary<string,IPluginModule> _modules=new Dictionary<string, IPluginModule>();
 
@@ -55,7 +60,7 @@ namespace MicroPlatform
 
         public EntityObject CreateItem(EntityType typeName)
         {
-            var entityObject = new EntityObject(typeName, _entityIntIdGenerator);
+            var entityObject = new EntityObject(typeName, _entityIntIdGenerator, this);
             return entityObject;
         }
 
@@ -88,7 +93,7 @@ namespace MicroPlatform
                     .Where(et=> et.Name == name));
         }
 
-        protected virtual void OnEntityValueChanged(EntityChangedEvent e)
+        public virtual void OnEntityValueChanged(EntityChangedEvent e)
         {
             EntityValueChanged?.Invoke(this, e);
         }
