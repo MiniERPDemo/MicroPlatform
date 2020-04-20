@@ -32,10 +32,11 @@ namespace MicroPlatform.Test
         {
             var entityFactory = new EntityFactory();
             var errandType = entityFactory.CreateType("Errand");
-            errandType.AddField(new EntityTypeItem()
+            errandType.AddField(new EntityTypeFieldItem()
             {
-                TypeId = "name",
-                TypeDescription = "Название"
+                FieldId = "name",
+                FieldDescription = "Название",
+                FieldType = "string"
             });
 
             var errandItem1 = entityFactory.CreateItem(errandType);

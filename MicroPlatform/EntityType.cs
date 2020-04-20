@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
 namespace MicroPlatform
 {
     public class EntityType
     {
-        private readonly Dictionary<string,EntityTypeItem> _fields=new Dictionary<string, EntityTypeItem>();
+        private readonly IEntityProvider _entityProvider;
+        private readonly Dictionary<string,EntityTypeFieldItem> _fields=new Dictionary<string, EntityTypeFieldItem>();
 
-        public EntityType(string name)
+        public EntityType(string name, IEntityProvider entityProvider)
         {
+            _entityProvider = entityProvider;
             Name = name;
-            _fields["id"] = new EntityTypeItem(true)
+            _fields["id"] = new EntityTypeFieldItem(true)
             {
-                TypeId = "id",
-                TypeDescription = "Идентификатор",
+                FieldId = "id",
+                FieldDescription = "Идентификатор",
             };
         }
 
@@ -25,24 +28,57 @@ namespace MicroPlatform
             return _fields.ContainsKey(fieldName);
         }
 
-
-        public void AddField(EntityTypeItem entityTypeItem)
+        public string[] PrimitiveTypes = new[]
         {
-            if (entityTypeItem == null) 
-                throw new ArgumentNullException(nameof(entityTypeItem));
+            "int",
+            "string",
+            "date"
+        };
 
-            if(string.IsNullOrWhiteSpace(entityTypeItem.TypeId))
-                throw new ArgumentNullException(nameof(entityTypeItem.TypeId));
+        public void AddField(EntityTypeFieldItem entityTypeFieldItem)
+        {
+            ValidateEntityType(entityTypeFieldItem);
 
-            if (string.IsNullOrWhiteSpace(entityTypeItem.TypeDescription))
-                throw new ArgumentNullException(nameof(entityTypeItem.TypeDescription));
-
-            _fields.Add(entityTypeItem.TypeId,entityTypeItem);
+            _fields.Add(entityTypeFieldItem.FieldId,entityTypeFieldItem);
         }
 
-        public EntityTypeItem GetField(string fieldKey)
+        private void ValidateEntityType(EntityTypeFieldItem entityTypeFieldItem)
         {
-            return _fields[fieldKey];
+            if (entityTypeFieldItem == null)
+                throw new ArgumentNullException(nameof(entityTypeFieldItem));
+
+            if (string.IsNullOrWhiteSpace(entityTypeFieldItem.FieldId))
+                throw new ArgumentNullException(nameof(entityTypeFieldItem.FieldId));
+
+            if (string.IsNullOrWhiteSpace(entityTypeFieldItem.FieldDescription))
+                throw new ArgumentNullException(nameof(entityTypeFieldItem.FieldDescription));
+
+            if (!PrimitiveTypes.Contains(entityTypeFieldItem.FieldType))
+            {
+                throw new ArgumentException($"Тип {entityTypeFieldItem.FieldType} не известен");
+            }
+        }
+
+        public EntityTypeFieldItem GetField(string fieldKey)
+        {
+            if (_fields.ContainsKey(fieldKey))
+            {
+                return _fields[fieldKey];
+            }
+
+            if (_entityProvider != null)
+            {
+                var extendedTypes = (_entityProvider.GetTypes(this.Name));
+                foreach (var extendedType in extendedTypes)
+                {
+                    if (extendedType.HasField(fieldKey))
+                    {
+                        return extendedType.GetField(fieldKey);
+                    }
+                }
+            }
+
+            throw new ArgumentException($"У сущности {Name} нет поля {fieldKey}");
         }
         public EntityType ValidateFieldExist(string fieldKey)
         {
@@ -64,17 +100,23 @@ namespace MicroPlatform
         }
     }
 
-    public class EntityTypeItem
+    public interface IEntityProvider
+    {
+        IEnumerable<EntityType> GetTypes(string name);
+    }
+
+    public class EntityTypeFieldItem
     {
         public bool IsReadOnly { get; }
 
-        public EntityTypeItem(bool isReadOnly=false)
+        public EntityTypeFieldItem(bool isReadOnly=false)
         {
             IsReadOnly = isReadOnly;
         }
 
-        public string TypeId { get; set; }
+        public string FieldId { get; set; }
         
-        public string TypeDescription { get; set; }
+        public string FieldDescription { get; set; }
+        public string FieldType { get; set; }
     }
 }
