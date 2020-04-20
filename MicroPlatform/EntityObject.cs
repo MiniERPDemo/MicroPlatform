@@ -7,11 +7,11 @@ namespace MicroPlatform
     {
         private readonly Dictionary<string,string> _fieldsKeyValue=new Dictionary<string, string>();
 
-        private readonly EntityType _entityType;
+        public EntityType EntityType { get; }
 
         public EntityObject(EntityType entityType, IEntityIdGenerator entityIdGenerator)
         {
-            _entityType = entityType;
+            EntityType = entityType;
             if (entityType == null)
             {
                 throw new ArgumentNullException();
@@ -21,11 +21,11 @@ namespace MicroPlatform
 
         public string GetValue(string fieldKey)
         {
-            _entityType.ValidateFieldExist(fieldKey);
+            EntityType.ValidateFieldExist(fieldKey);
 
             if (!_fieldsKeyValue.ContainsKey(fieldKey))
             {
-                _fieldsKeyValue[fieldKey] = _entityType.GetField(fieldKey).GetDefaultValue();
+                _fieldsKeyValue[fieldKey] = EntityType.GetField(fieldKey).GetDefaultValue();
             }
 
             return _fieldsKeyValue[fieldKey];
@@ -36,7 +36,7 @@ namespace MicroPlatform
         
         public void SetValue(string fieldKey, string fieldValue)
         {
-            _entityType
+            EntityType
                 .ValidateFieldExist(fieldKey)
                 .ValidateFieldEditable(fieldKey);
             

@@ -6,14 +6,13 @@ namespace MicroPlatform.Test
     public class EntityEventTest
     {
         [Test]
-        public void TestExtendExistingEntity()
+        public void TestEventField()
         {
             var entityFactory = new EntityFactory();
             
-            entityFactory.EntityValueChanged += (s, e) =>
-            {
+            EntityChangedEvent entityChanged=null;
 
-            };
+            entityFactory.EntityValueChanged += (s, e) => { entityChanged = e; };
             
             var errandType = entityFactory.CreateType("Errand");
 
@@ -29,11 +28,11 @@ namespace MicroPlatform.Test
             var errandItem1 = entityFactory.CreateItem(errandType);
             errandItem1.SetValue("name", "Проект");
 
-            var types = entityFactory.Types.ToList();
-
-            Assert.AreEqual(1, types.Count());
-            Assert.AreEqual("Errand", types[0].Name);
-            Assert.AreEqual("int", types[0].GetField("Price").FieldType);
+            
+            Assert.AreEqual("Errand", entityChanged?.Target?.EntityType?.Name);
+            Assert.AreEqual("name", entityChanged.FieldKey);
+            Assert.AreEqual("", entityChanged.OldValue);
+            Assert.AreEqual("Проект", entityChanged.NewValue);
         }
 
         
