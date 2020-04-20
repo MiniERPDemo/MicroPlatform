@@ -23,7 +23,14 @@ namespace MicroPlatform
         {
             _entityType.ValidateFieldExist(fieldKey);
 
+            if (!_fieldsKeyValue.ContainsKey(fieldKey))
+            {
+                _fieldsKeyValue[fieldKey] = _entityType.GetField(fieldKey).GetDefaultValue();
+            }
+
             return _fieldsKeyValue[fieldKey];
+
+
         }
 
         

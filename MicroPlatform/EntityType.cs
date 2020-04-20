@@ -82,12 +82,18 @@ namespace MicroPlatform
         }
         public EntityType ValidateFieldExist(string fieldKey)
         {
-            if (!this.HasField(fieldKey))
-            {
-                throw new ArgumentException($"Поле {fieldKey} не задано для сущности {Name}");
-            }
+            if (this.HasField(fieldKey)) 
+                return this;
 
-            return this;
+            if (_entityProvider != null)
+            {
+                if (_entityProvider.GetTypes(Name).Any(entityType => entityType.HasField(fieldKey)))
+                {
+                    return this;
+                }
+            }
+            throw new ArgumentException($"Поле {fieldKey} не задано для сущности {Name}");
+
         }
 
         public void ValidateFieldEditable(string fieldKey)
@@ -118,5 +124,17 @@ namespace MicroPlatform
         
         public string FieldDescription { get; set; }
         public string FieldType { get; set; }
+
+        public string GetDefaultValue()
+        {
+            switch (FieldType)
+            {
+                case "int":
+                    return "0";
+                case "string":
+                    return "1";
+            }
+            return null;
+        }
     }
 }

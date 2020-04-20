@@ -34,6 +34,8 @@ namespace MicroPlatform
             }
         }
 
+        public event EventHandler<EntityChangedEvent> EntityValueChanged;
+
         public EntityType CreateType(string typeName)
         {
             if (typeName == null)
@@ -85,6 +87,20 @@ namespace MicroPlatform
                 .SelectMany(module => module.Value.EntityTypes
                     .Where(et=> et.Name == name));
         }
+
+        protected virtual void OnEntityValueChanged(EntityChangedEvent e)
+        {
+            EntityValueChanged?.Invoke(this, e);
+        }
+    }
+
+    public class EntityChangedEvent : EventArgs
+    {
+        public EntityObject Target { get; set; }
+        public string FieldKey { get; set; }
+        public string FieldName { get; set; }
+        public string OldValue { get; set; }
+        public string NewValue { get; set; }
     }
 
     public interface IPluginModule

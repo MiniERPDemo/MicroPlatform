@@ -58,6 +58,19 @@ namespace MicroPlatform.Test
             Assert.AreEqual("int",types[0].GetField("Price").FieldType);
         }
 
+        [Test]
+        public void TestGetFieldExtendField()
+        {
+            var entityFactory = new EntityFactory();
+            var errandType = entityFactory.CreateType("Errand");
+
+            entityFactory.RegisterPlugin(new FakeErrandExtensions());
+
+            var entity = entityFactory.CreateItem(errandType);
+            Assert.AreEqual("0",entity.GetValue("Price"));
+            
+        }
+
 
         [Test]
         public void TestNonexistenField()
@@ -85,31 +98,6 @@ namespace MicroPlatform.Test
 
         }
 
-    }
-
-    public class FakeErrandExtensions : IPluginModule
-    {
-        public string PluginId { get; } = "EAEF1608-876A-4C5C-8D7E-65633A8A5C74";
-        public string PluginType { get; } = "Errand";
-
-        public List<EntityType> EntityTypes =>
-            new List<EntityType>()
-            {
-                GetErrandType()
-            };
-
-
-        private EntityType GetErrandType()
-        {
-            var entityType = new EntityType("Errand",null);
-            entityType.AddField(new EntityTypeFieldItem()
-            {
-                FieldId = "Price",
-                FieldDescription = "Цена",
-                FieldType = "int"
-            });
-            return entityType;
-        }
     }
 
     public class FakeIssueExtensions : IPluginModule
