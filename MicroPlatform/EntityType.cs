@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace MicroPlatform
 {
@@ -128,14 +127,12 @@ namespace MicroPlatform
 
         public string GetDefaultValue()
         {
-            switch (FieldType)
+            return FieldType switch
             {
-                case "int":
-                    return "0";
-                case "string":
-                    return "";
-            }
-            return null;
+                "int" => "0",
+                "string" => "",
+                _ => null,
+            };
         }
     }
 }
