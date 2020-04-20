@@ -59,7 +59,7 @@ namespace MicroPlatform.Test
         }
 
         [Test]
-        public void TestGetFieldExtendField()
+        public void TestGetValueExtendField()
         {
             var entityFactory = new EntityFactory();
             var errandType = entityFactory.CreateType("Errand");
@@ -68,9 +68,21 @@ namespace MicroPlatform.Test
 
             var entity = entityFactory.CreateItem(errandType);
             Assert.AreEqual("0",entity.GetValue("Price"));
-            
         }
 
+        [Test]
+        public void TestSetValueExtendField()
+        {
+            var entityFactory = new EntityFactory();
+            var errandType = entityFactory.CreateType("Errand");
+
+            entityFactory.RegisterPlugin(new FakeErrandExtensions());
+
+            var entity = entityFactory.CreateItem(errandType);
+            entity.SetValue("Price","150");
+
+            Assert.AreEqual("150", entity.GetValue("Price"));
+        }
 
         [Test]
         public void TestNonexistenField()

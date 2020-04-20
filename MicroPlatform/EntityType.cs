@@ -99,7 +99,8 @@ namespace MicroPlatform
         public void ValidateFieldEditable(string fieldKey)
         {
             ValidateFieldExist(fieldKey);
-            if (_fields[fieldKey].IsReadOnly)
+            var field = GetField(fieldKey);
+            if (field.IsReadOnly)
             {
                 throw new FieldAccessException($"Поле {this.Name}.{fieldKey} только для чтения");
             }
