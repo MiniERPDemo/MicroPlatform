@@ -55,10 +55,35 @@ namespace MicroPlatform.Test
             
             Assert.AreEqual(1, types.Count());
             Assert.AreEqual("Errand", types[0].Name);
-
             Assert.AreEqual("int",types[0].GetField("Price").FieldType);
         }
 
+
+        [Test]
+        public void TestNonexistenField()
+        {
+            var entityFactory = new EntityFactory();
+            var errandType = entityFactory.CreateType("Errand");
+
+            entityFactory.RegisterPlugin(new FakeErrandExtensions());
+
+            errandType.AddField(new EntityTypeFieldItem()
+            {
+                FieldId = "name",
+                FieldDescription = "Название",
+                FieldType = "string"
+            });
+
+            var errandItem1 = entityFactory.CreateItem(errandType);
+            errandItem1.SetValue("name", "Проект");
+
+
+            Assert.Throws<ArgumentException>(() => { 
+                errandItem1.GetValue("Description");
+            });
+
+
+        }
 
     }
 
